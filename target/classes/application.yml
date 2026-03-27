@@ -39,7 +39,7 @@ spring:
       auto-offset-reset: earliest
       properties:
         spring.json.trusted.packages: "com.betting.dto"
-        spring.json.value.default.type: com.betting.dto.EventOutcomeMessage
+        spring.json.value.default.type: com.betting.messaging.model.EventOutcomeMessage
 
 rocketmq:
   name-server: ${ROCKETMQ_NAME_SERVER:localhost:9876}
