@@ -22,7 +22,7 @@ public class KafkaEventOutcomeProducer implements EventOutcomeProducer {
 	@Override public void sendEventOutcome(EventOutcomeMessage message) {
 		log.info("Sending event outcome to Kafka topic={}: eventId={}, winnerId={}", MessageTopics.EVENT_OUTCOMES, message.getEventId(), message.getWinnerId());
 		CompletableFuture<SendResult<String, EventOutcomeMessage>> future =
-				kafkaTemplate.send(MessageTopics.EVENT_OUTCOMES, message.getEventId().toString(), message);
+				kafkaTemplate.send(MessageTopics.EVENT_OUTCOMES, String.valueOf(message.getEventId()), message);
 
 		future.whenComplete((result, ex) -> {
 			if (ex != null) {
