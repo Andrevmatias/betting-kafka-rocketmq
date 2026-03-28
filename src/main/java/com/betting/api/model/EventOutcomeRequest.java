@@ -11,6 +11,6 @@ public class EventOutcomeRequest {
 	private Long eventId;
 	@NotBlank(message = "eventName is required")
 	private String eventName;
-	@NotBlank(message = "eventWinnerId is required")
+	@Positive(message = "eventWinnerId must be greater than zero")
 	private Long eventWinnerId;
 }

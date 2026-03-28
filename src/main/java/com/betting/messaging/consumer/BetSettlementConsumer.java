@@ -16,7 +16,7 @@ import com.betting.messaging.model.MessageTopics;
 
 @Component
 @RocketMQMessageListener(
-		topic = MessageTopics.EVENT_OUTCOMES,
+		topic = MessageTopics.BET_SETTLEMENTS,
 		consumerGroup = "bet-settlement-consumer-group"
 )
 @RequiredArgsConstructor
