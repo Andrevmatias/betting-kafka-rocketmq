@@ -17,7 +17,7 @@ public class EventOutcomeConsumer {
 
 	private final BetService betService;
 
-	@KafkaListener(topics = MessageTopics.EVENT_OUTCOMES, groupId = "betting-group")
+	@KafkaListener(topics = MessageTopics.EVENT_OUTCOMES, groupId = "betting-group", concurrency = "6")
 	public void handleEventOutcome(EventOutcomeMessage message) {
 		log.info("Received event outcome from Kafka: eventId={}, winnerId={}", message.getEventId(), message.getWinnerId());
 
