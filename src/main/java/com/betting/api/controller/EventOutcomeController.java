@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.betting.api.model.EventOutcomeRequest;
 import com.betting.data.model.Event;
-import com.betting.service.EventService;
+import com.betting.service.EventOutcomeService;
 
 import jakarta.validation.Valid;
 
@@ -19,7 +19,7 @@ import jakarta.validation.Valid;
 @RequiredArgsConstructor
 public class EventOutcomeController {
 
-	private final EventService eventService;
+	private final EventOutcomeService eventService;
 
 	@PostMapping
 	public ResponseEntity<Event> publishOutcome(@Valid @RequestBody EventOutcomeRequest event) {

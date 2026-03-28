@@ -14,7 +14,7 @@ import com.betting.messaging.producer.EventOutcomeProducer;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class EventService {
+public class EventOutcomeService {
 
 	private final EventRepository eventRepository;
 	private final EventOutcomeProducer eventOutcomeProducer;
@@ -22,19 +22,19 @@ public class EventService {
 	@Transactional
 	public void publishOutcome(Long eventId, Long winnerId) {
 		log.debug("Publishing outcome for eventId={}, winnerId={}", eventId, winnerId);
-		
+
 		Event event = getEventById(eventId);
 
-		if (event.getWinnerId() != null) {
+		if (event.getWinnerId() != null && !event.getWinnerId().equals(winnerId)) {
 			throw new IllegalStateException("Outcome already published for event: " + eventId);
 		}
 
 		event.setWinnerId(winnerId);
-		Event saved = eventRepository.save(event);
+		eventRepository.save(event);
 
 		EventOutcomeMessage message = EventOutcomeMessage.builder()
-				.eventId(saved.getId())
-				.winnerId(saved.getWinnerId())
+				.eventId(eventId)
+				.winnerId(winnerId)
 				.build();
 
 		eventOutcomeProducer.sendEventOutcome(message);
