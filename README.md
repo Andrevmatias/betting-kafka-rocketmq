@@ -42,6 +42,7 @@ src/main/java/com/betting/
 │   │   ├── BetController.java              # GET /api/v1/bet
 │   │   └── EventOutcomeController.java     # POST /api/v1/eventOutcomes
 │   └── model/
+│       ├── BetResponse.java                # Response DTO returned by BetController
 │       └── EventOutcomeRequest.java        # Request DTO with validation
 ├── config/
 │   ├── GlobalExceptionHandler.java         # Maps exceptions to HTTP status codes
@@ -52,10 +53,12 @@ src/main/java/com/betting/
 │   │   ├── BetStatus.java                  # Enum: PENDING, WON, LOST
 │   │   └── Event.java                      # Event entity
 │   └── repository/
-│       ├── BetRepository.java              
+│       ├── BetRepository.java
 │       └── EventRepository.java
 ├── exception/
 │   └── BrokerException.java
+├── mapper/
+│   └── BetMapper.java                      # MapStruct: Bet → BetDto → BetResponse
 ├── messaging/
 │   ├── consumer/
 │   │   ├── BetSettlementConsumer.java      # RocketMQ listener
@@ -63,13 +66,15 @@ src/main/java/com/betting/
 │   ├── model/
 │   │   ├── BetSettlementMessage.java
 │   │   ├── EventOutcomeMessage.java
-│   │   └── MessageTopics.java              
+│   │   └── MessageTopics.java
 │   └── producer/
-│       ├── BetSettlementProducer.java      
-│       ├── EventOutcomeProducer.java       
+│       ├── BetSettlementProducer.java
+│       ├── EventOutcomeProducer.java
 │       ├── KafkaEventOutcomeProducer.java
 │       └── RocketMqBetSettlementProducer.java
 └── service/
+    ├── model/
+    │   └── BetDto.java                     # Service layer DTO returned by BetService
     ├── BetService.java                     # Resolves affected bets and sends settlements
     ├── BetSettlementService.java           # Atomically settles a single bet
     └── EventOutcomeService.java            # Idempotency check + publishes event outcome

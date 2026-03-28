@@ -21,8 +21,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.betting.data.model.Bet;
 import com.betting.data.model.BetStatus;
 import com.betting.data.repository.BetRepository;
+import com.betting.mapper.BetMapper;
 import com.betting.messaging.model.BetSettlementMessage;
 import com.betting.messaging.producer.BetSettlementProducer;
+import com.betting.service.model.BetDto;
 
 @ExtendWith(MockitoExtension.class)
 class BetServiceTest {
@@ -31,15 +33,19 @@ class BetServiceTest {
 	private BetRepository betRepository;
 	@Mock
 	private BetSettlementProducer betSettlementProducer;
+	@Mock
+	private BetMapper betMapper;
 	@InjectMocks
 	private BetService betService;
 
 	@Test
-	void getAllBets_returnsBetsFromRepository() {
-		List<Bet> bets = List.of(Bet.builder().id(1L).build());
-		when(betRepository.findAll()).thenReturn(bets);
+	void getAllBets_returnsMappedDtos() {
+		Bet bet = Bet.builder().id(1L).build();
+		BetDto betDto = BetDto.builder().id(1L).build();
+		when(betRepository.findAll()).thenReturn(List.of(bet));
+		when(betMapper.toDto(bet)).thenReturn(betDto);
 
-		assertThat(betService.getAllBets()).isEqualTo(bets);
+		assertThat(betService.getAllBets()).containsExactly(betDto);
 	}
 
 	@Test

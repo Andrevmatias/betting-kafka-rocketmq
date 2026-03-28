@@ -14,8 +14,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.betting.data.model.Bet;
+import com.betting.api.model.BetResponse;
+import com.betting.data.model.BetStatus;
+import com.betting.mapper.BetMapper;
 import com.betting.service.BetService;
+import com.betting.service.model.BetDto;
 
 @WebMvcTest(BetController.class)
 class BetControllerTest {
@@ -26,17 +29,17 @@ class BetControllerTest {
 	@MockBean
 	private BetService betService;
 
+	@MockBean
+	private BetMapper betMapper;
+
 	@Test
 	void getAllBets_returnsOkWithBets() throws Exception {
-		Bet bet = Bet.builder()
-				.id(1L)
-				.userId(1L)
-				.eventId(1L)
-				.eventMarketId(1L)
-				.eventWinnerId(1L)
-				.amount(BigDecimal.TEN)
-				.build();
-		when(betService.getAllBets()).thenReturn(List.of(bet));
+		BetDto betDto = BetDto.builder().id(1L).userId(1L).eventId(1L).eventMarketId(1L)
+				.eventWinnerId(1L).amount(BigDecimal.TEN).status(BetStatus.PENDING).build();
+		BetResponse betResponse = BetResponse.builder().id(1L).userId(1L).eventId(1L)
+				.eventMarketId(1L).eventWinnerId(1L).amount(BigDecimal.TEN).status(BetStatus.PENDING).build();
+		when(betService.getAllBets()).thenReturn(List.of(betDto));
+		when(betMapper.toResponse(betDto)).thenReturn(betResponse);
 
 		mockMvc.perform(get("/api/v1/bet"))
 				.andExpect(status().isOk())
