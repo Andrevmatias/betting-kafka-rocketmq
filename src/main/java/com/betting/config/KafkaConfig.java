@@ -8,19 +8,11 @@ import org.springframework.kafka.config.TopicBuilder;
 @Configuration
 public class KafkaConfig {
 
-    @Bean
-    public NewTopic eventOutcomesTopic() {
-        return TopicBuilder.name("event-outcomes")
-                .partitions(3)
-                .replicas(1)
-                .build();
-    }
-
-    @Bean
-    public NewTopic betSettlementsTopic() {
-        return TopicBuilder.name("bet-settlements")
-                .partitions(3)
-                .replicas(1)
-                .build();
-    }
+	@Bean
+	public NewTopic eventOutcomesTopic() {
+		return TopicBuilder.name("event-outcomes")
+				.partitions(6)
+				.replicas(1)
+				.build();
+	}
 }

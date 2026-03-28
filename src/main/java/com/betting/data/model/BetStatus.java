@@ -1,4 +1,4 @@
-package com.betting.model;
+package com.betting.data.model;
 
 public enum BetStatus {
     PENDING,
