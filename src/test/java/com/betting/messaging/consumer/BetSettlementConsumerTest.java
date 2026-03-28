@@ -2,8 +2,9 @@ package com.betting.messaging.consumer;
 
 import static org.mockito.Mockito.verify;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,21 +20,13 @@ class BetSettlementConsumerTest {
 	@InjectMocks
 	private BetSettlementConsumer consumer;
 
-	@Test
-	void onMessage_delegatesSettlementToService() {
-		BetSettlementMessage message = BetSettlementMessage.builder().betId(42L).won(true).build();
+	@ParameterizedTest
+	@ValueSource(booleans = { true, false })
+	void onMessage_delegatesSettlementToService(boolean isWon) {
+		BetSettlementMessage message = BetSettlementMessage.builder().betId(42L).won(isWon).build();
 
 		consumer.onMessage(message);
 
-		verify(betSettlementService).settleBet(42L, true);
-	}
-
-	@Test
-	void onMessage_lostBet_delegatesWithWonFalse() {
-		BetSettlementMessage message = BetSettlementMessage.builder().betId(7L).won(false).build();
-
-		consumer.onMessage(message);
-
-		verify(betSettlementService).settleBet(7L, false);
+		verify(betSettlementService).settleBet(42L, isWon);
 	}
 }

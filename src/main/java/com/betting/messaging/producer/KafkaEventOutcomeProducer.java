@@ -1,7 +1,5 @@
 package com.betting.messaging.producer;
 
-import java.util.concurrent.CompletableFuture;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -9,6 +7,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 
+import com.betting.exception.BrokerException;
 import com.betting.messaging.model.EventOutcomeMessage;
 import com.betting.messaging.model.MessageTopics;
 
@@ -19,19 +18,21 @@ public class KafkaEventOutcomeProducer implements EventOutcomeProducer {
 
 	private final KafkaTemplate<String, EventOutcomeMessage> kafkaTemplate;
 
-	@Override public void sendEventOutcome(EventOutcomeMessage message) {
+	@Override
+	public void sendEventOutcome(EventOutcomeMessage message) {
 		log.info("Sending event outcome to Kafka topic={}: eventId={}, winnerId={}", MessageTopics.EVENT_OUTCOMES, message.getEventId(), message.getWinnerId());
-		CompletableFuture<SendResult<String, EventOutcomeMessage>> future =
-				kafkaTemplate.send(MessageTopics.EVENT_OUTCOMES, String.valueOf(message.getEventId()), message);
-
-		future.whenComplete((result, ex) -> {
-			if (ex != null) {
-				log.error("Failed to send event outcome message for eventId={}: {}", message.getEventId(), ex.getMessage(), ex);
-			} else {
-				log.info("Event outcome message sent successfully for eventId={}, offset={}",
-						message.getEventId(),
-						result.getRecordMetadata().offset());
-			}
-		});
+		try {
+			SendResult<String, EventOutcomeMessage> result = kafkaTemplate
+					.send(MessageTopics.EVENT_OUTCOMES, String.valueOf(message.getEventId()), message)
+					.get();
+			log.info("Event outcome message sent successfully for eventId={}, offset={}",
+					message.getEventId(),
+					result.getRecordMetadata().offset());
+		} catch (InterruptedException ex) {
+			Thread.currentThread().interrupt();
+			throw new BrokerException("Interrupted while sending bet settlement message", ex);
+		} catch (Exception ex) {
+			throw new BrokerException("Failed to send event outcome for eventId=" + message.getEventId(), ex);
+		}
 	}
 }

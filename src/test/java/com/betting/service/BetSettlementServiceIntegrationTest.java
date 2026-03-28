@@ -33,7 +33,7 @@ class BetSettlementServiceIntegrationTest {
 
 	@Test
 	void settleBet_pendingBetWon_statusBecomesWon() {
-		Bet bet = betRepository.save(pendingBet());
+		Bet bet = betRepository.save(createPendingBet());
 
 		betSettlementService.settleBet(bet.getId(), true);
 
@@ -44,7 +44,7 @@ class BetSettlementServiceIntegrationTest {
 
 	@Test
 	void settleBet_pendingBetLost_statusBecomesLost() {
-		Bet bet = betRepository.save(pendingBet());
+		Bet bet = betRepository.save(createPendingBet());
 
 		betSettlementService.settleBet(bet.getId(), false);
 
@@ -71,7 +71,7 @@ class BetSettlementServiceIntegrationTest {
 		assertThat(betRepository.findById(bet.getId()).orElseThrow().getStatus()).isEqualTo(BetStatus.WON);
 	}
 
-	private Bet pendingBet() {
+	private Bet createPendingBet() {
 		return Bet.builder()
 				.userId(1L)
 				.eventId(1L)

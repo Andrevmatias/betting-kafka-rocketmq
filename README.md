@@ -6,31 +6,9 @@ A sports betting platform that demonstrates a hybrid messaging architecture usin
 
 When an event outcome is published, the system fans out bet settlement messages across two different brokers:
 
-1. The event outcome is published to **Kafka**, leveraging its high-throughput, partitioned consumption to fan out to multiple concurrent workers.
-2. Each worker resolves which bets are affected and publishes individual settlement messages to **RocketMQ**, which guarantees reliable delivery.
+1. The event outcome is published to **Kafka**.
+2. Each worker resolves which bets are affected and publishes individual settlement messages to **RocketMQ**.
 3. A RocketMQ consumer receives each settlement and atomically updates the bet status in the database.
-
-```
-REST Client
-    │
-    ▼
-EventOutcomeController
-    │  POST /api/v1/eventOutcomes
-    ▼
-EventOutcomeService ──────────► Kafka (event-outcomes, 6 partitions)
-                                        │
-                              EventOutcomeConsumer (6 threads)
-                                        │
-                                   BetService
-                                        │
-                                        ▼
-                             RocketMQ (bet-settlements)
-                                        │
-                             BetSettlementConsumer
-                                        │
-                                        ▼
-                             BetSettlementService ──► Database
-```
 
 ## Project Structure
 
@@ -42,6 +20,7 @@ src/main/java/com/betting/
 │   │   ├── BetController.java              # GET /api/v1/bet
 │   │   └── EventOutcomeController.java     # POST /api/v1/eventOutcomes
 │   └── model/
+│       ├── BetResponse.java                # Response DTO returned by BetController
 │       └── EventOutcomeRequest.java        # Request DTO with validation
 ├── config/
 │   ├── GlobalExceptionHandler.java         # Maps exceptions to HTTP status codes
@@ -52,10 +31,12 @@ src/main/java/com/betting/
 │   │   ├── BetStatus.java                  # Enum: PENDING, WON, LOST
 │   │   └── Event.java                      # Event entity
 │   └── repository/
-│       ├── BetRepository.java              
+│       ├── BetRepository.java
 │       └── EventRepository.java
 ├── exception/
 │   └── BrokerException.java
+├── mapper/
+│   └── BetMapper.java                      # MapStruct: Bet → BetDto → BetResponse
 ├── messaging/
 │   ├── consumer/
 │   │   ├── BetSettlementConsumer.java      # RocketMQ listener
@@ -63,13 +44,15 @@ src/main/java/com/betting/
 │   ├── model/
 │   │   ├── BetSettlementMessage.java
 │   │   ├── EventOutcomeMessage.java
-│   │   └── MessageTopics.java              
+│   │   └── MessageTopics.java
 │   └── producer/
-│       ├── BetSettlementProducer.java      
-│       ├── EventOutcomeProducer.java       
+│       ├── BetSettlementProducer.java
+│       ├── EventOutcomeProducer.java
 │       ├── KafkaEventOutcomeProducer.java
 │       └── RocketMqBetSettlementProducer.java
 └── service/
+    ├── model/
+    │   └── BetDto.java                     # Service layer DTO returned by BetService
     ├── BetService.java                     # Resolves affected bets and sends settlements
     ├── BetSettlementService.java           # Atomically settles a single bet
     └── EventOutcomeService.java            # Idempotency check + publishes event outcome
@@ -95,6 +78,14 @@ This starts four containers:
 | RocketMQ NameServer | apache/rocketmq:5.3.2   | 9876  |
 | RocketMQ Broker     | apache/rocketmq:5.3.2   | 10911 |
 | App                 | (built from Dockerfile) | 8080  |
+
+#### Start without App
+
+If you want to run the application outside Docker (to IDE Debugging, for instance)
+
+```bash
+docker compose up kafka rocketmq-namesrv rocketmq-broker
+```
 
 ### Usage
 
@@ -150,3 +141,24 @@ than once (e.g., due to a broker retry), making the consumer effectively idempot
 
 `EventOutcomeService` checks whether an event already has a winner recorded before publishing to Kafka. This prevents duplicate fan-outs if the same outcome is posted more than
 once.
+
+### Prioritizing reliability
+
+The Kafka and RocketMQ producers block until the broker acknowledges the message. This lets errors propagate back through the service layer so the API can return the appropriate
+HTTP status code instead of silently losing messages.
+
+### Isolating messaging technologies
+
+Services that contain business logic are decoupled from Kafka and RocketMQ SDK classes via producer/consumer interfaces. This allows the messaging implementation to change without
+touching business logic.
+
+### Isolating system layers
+
+Each layer has its own models. Schema changes in one layer only propagate to adjacent layers where explicitly mapped, preventing accidental coupling.
+
+### Evolutions
+
+- Non-blocking producers error handling
+- Retry tuning
+- Send messages in batches to improve performance
+- Instrumentalization

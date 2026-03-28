@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.betting.exception.BrokerException;
+
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -25,6 +27,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	public ResponseEntity<Object> handleIllegalState(IllegalStateException exception) {
 		return ResponseEntity
 				.status(HttpStatus.CONFLICT)
+				.body(exception.getMessage());
+	}
+
+	@ExceptionHandler({ BrokerException.class })
+	public ResponseEntity<Object> handleBrokerException(IllegalStateException exception) {
+		return ResponseEntity
+				.status(HttpStatus.BAD_GATEWAY)
 				.body(exception.getMessage());
 	}
 

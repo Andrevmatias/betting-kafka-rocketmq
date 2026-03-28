@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 import com.betting.data.model.Bet;
 import com.betting.data.model.BetStatus;
 import com.betting.data.repository.BetRepository;
+import com.betting.mapper.BetMapper;
 import com.betting.messaging.model.BetSettlementMessage;
 import com.betting.messaging.producer.BetSettlementProducer;
+import com.betting.service.model.BetDto;
 
 @Service
 @RequiredArgsConstructor
@@ -20,9 +22,12 @@ public class BetService {
 
 	private final BetRepository betRepository;
 	private final BetSettlementProducer betSettlementProducer;
+	private final BetMapper betMapper;
 
-	public List<Bet> getAllBets() {
-		return betRepository.findAll();
+	public List<BetDto> getAllBets() {
+		return betRepository.findAll().stream()
+				.map(betMapper::toDto)
+				.toList();
 	}
 
 	public void publishBetResults(Long eventId, Long winnerId) {

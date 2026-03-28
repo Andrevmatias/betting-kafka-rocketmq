@@ -23,9 +23,7 @@ public class EventOutcomeController {
 
 	@PostMapping
 	public ResponseEntity<Event> publishOutcome(@Valid @RequestBody EventOutcomeRequest event) {
-		Long winnerId = event.getEventWinnerId();
-
-		eventService.publishOutcome(event.getEventId(), winnerId);
+		eventService.publishOutcome(event.getEventId(), event.getEventWinnerId());
 		return ResponseEntity.accepted().build();
 	}
 }

@@ -2,6 +2,7 @@ package com.betting.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentCaptor.forClass;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -21,8 +22,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.betting.data.model.Bet;
 import com.betting.data.model.BetStatus;
 import com.betting.data.repository.BetRepository;
+import com.betting.mapper.BetMapper;
 import com.betting.messaging.model.BetSettlementMessage;
 import com.betting.messaging.producer.BetSettlementProducer;
+import com.betting.service.model.BetDto;
 
 @ExtendWith(MockitoExtension.class)
 class BetServiceTest {
@@ -31,15 +34,20 @@ class BetServiceTest {
 	private BetRepository betRepository;
 	@Mock
 	private BetSettlementProducer betSettlementProducer;
+	@Mock
+	private BetMapper betMapper;
 	@InjectMocks
 	private BetService betService;
 
 	@Test
-	void getAllBets_returnsBetsFromRepository() {
-		List<Bet> bets = List.of(Bet.builder().id(1L).build());
-		when(betRepository.findAll()).thenReturn(bets);
+	void getAllBets_returnsMappedDtos() {
+		Bet bet = Bet.builder().id(1L).build();
+		BetDto betDto = BetDto.builder().id(1L).build();
 
-		assertThat(betService.getAllBets()).isEqualTo(bets);
+		when(betRepository.findAll()).thenReturn(List.of(bet));
+		when(betMapper.toDto(bet)).thenReturn(betDto);
+
+		assertThat(betService.getAllBets()).containsExactly(betDto);
 	}
 
 	@Test
@@ -50,6 +58,7 @@ class BetServiceTest {
 				.eventWinnerId(5L)
 				.amount(BigDecimal.TEN)
 				.build();
+
 		when(betRepository.findByEventIdAndStatus(10L, BetStatus.PENDING)).thenReturn(List.of(bet));
 
 		betService.publishBetResults(10L, 5L);
@@ -74,12 +83,13 @@ class BetServiceTest {
 
 		ArgumentCaptor<BetSettlementMessage> captor = forClass(BetSettlementMessage.class);
 		verify(betSettlementProducer).sendBetSettlement(captor.capture());
+		assertThat(captor.getValue().getBetId()).isEqualTo(2L);
 		assertThat(captor.getValue().isWon()).isFalse();
 	}
 
 	@Test
 	void publishBetResults_noPendingBets_doesNotSendAnyMessages() {
-		when(betRepository.findByEventIdAndStatus(10L, BetStatus.PENDING)).thenReturn(List.of());
+		when(betRepository.findByEventIdAndStatus(anyLong(), any())).thenReturn(List.of());
 
 		betService.publishBetResults(10L, 5L);
 
@@ -100,6 +110,7 @@ class BetServiceTest {
 				.eventWinnerId(3L)
 				.amount(BigDecimal.ONE)
 				.build();
+
 		when(betRepository.findByEventIdAndStatus(10L, BetStatus.PENDING)).thenReturn(List.of(won, lost));
 
 		betService.publishBetResults(10L, 5L);
