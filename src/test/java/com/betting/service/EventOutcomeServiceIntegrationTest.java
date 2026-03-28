@@ -3,9 +3,9 @@ package com.betting.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +38,9 @@ class EventOutcomeServiceIntegrationTest {
 		Event saved = eventRepository.findById(999L).orElseThrow();
 		assertThat(saved.getWinnerId()).isEqualTo(5L);
 		verify(eventOutcomeProducer).sendEventOutcome(argThat(m ->
-				m.getEventId().equals(999L) && m.getWinnerId().equals(5L)));
+				m.getEventId().equals(999L)
+						&& m.getWinnerId().equals(5L))
+		);
 	}
 
 	@Test
@@ -48,7 +50,10 @@ class EventOutcomeServiceIntegrationTest {
 		eventOutcomeService.publishOutcome(event.getId(), 3L);
 
 		assertThat(eventRepository.findById(event.getId()).orElseThrow().getWinnerId()).isEqualTo(3L);
-		verify(eventOutcomeProducer).sendEventOutcome(any());
+		verify(eventOutcomeProducer).sendEventOutcome(argThat(m ->
+				m.getEventId().equals(1L)
+						&& m.getWinnerId().equals(3L))
+		);
 	}
 
 	@Test
@@ -58,6 +63,8 @@ class EventOutcomeServiceIntegrationTest {
 		assertThatThrownBy(() -> eventOutcomeService.publishOutcome(event.getId(), 3L))
 				.isInstanceOf(IllegalStateException.class)
 				.hasMessageContaining(event.getId().toString());
+		
+		verifyNoInteractions(eventOutcomeProducer);
 	}
 
 	@Test
@@ -66,6 +73,9 @@ class EventOutcomeServiceIntegrationTest {
 
 		eventOutcomeService.publishOutcome(event.getId(), 2L);
 
-		verify(eventOutcomeProducer).sendEventOutcome(any());
+		verify(eventOutcomeProducer).sendEventOutcome(argThat(m ->
+				m.getEventId().equals(1L)
+						&& m.getWinnerId().equals(2L))
+		);
 	}
 }

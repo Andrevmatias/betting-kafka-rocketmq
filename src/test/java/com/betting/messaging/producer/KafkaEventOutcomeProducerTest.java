@@ -34,6 +34,7 @@ class KafkaEventOutcomeProducerTest {
 	void sendEventOutcome_callsTemplateWithCorrectTopicAndKey() {
 		EventOutcomeMessage message = EventOutcomeMessage.builder().eventId(10L).winnerId(5L).build();
 		SendResult<String, EventOutcomeMessage> sendResult = mock(SendResult.class);
+
 		when(sendResult.getRecordMetadata()).thenReturn(mock(org.apache.kafka.clients.producer.RecordMetadata.class));
 		when(kafkaTemplate.send(anyString(), anyString(), any())).thenReturn(CompletableFuture.completedFuture(sendResult));
 
@@ -50,6 +51,6 @@ class KafkaEventOutcomeProducerTest {
 
 		assertThatThrownBy(() -> producer.sendEventOutcome(message))
 				.isInstanceOf(BrokerException.class)
-				.hasMessageContaining("eventId=10");
+				.hasMessage("Failed to send event outcome for eventId=10");
 	}
 }

@@ -23,8 +23,10 @@ public class BetController {
 
 	@GetMapping
 	public ResponseEntity<List<BetResponse>> getAllBets() {
-		return ResponseEntity.ok(betService.getAllBets().stream()
-				.map(betMapper::toResponse)
-				.toList());
+		return ResponseEntity.ok(
+				betService.getAllBets().stream()
+						.map(betMapper::toResponse)
+						.toList()
+		);
 	}
 }

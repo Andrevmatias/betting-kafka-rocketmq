@@ -1,8 +1,5 @@
 package com.betting.messaging.model;
 
-import lombok.Getter;
-
-@Getter
 public final class MessageTopics {
 	private MessageTopics() {
 	}

@@ -34,10 +34,24 @@ class BetControllerTest {
 
 	@Test
 	void getAllBets_returnsOkWithBets() throws Exception {
-		BetDto betDto = BetDto.builder().id(1L).userId(1L).eventId(1L).eventMarketId(1L)
-				.eventWinnerId(1L).amount(BigDecimal.TEN).status(BetStatus.PENDING).build();
-		BetResponse betResponse = BetResponse.builder().id(1L).userId(1L).eventId(1L)
-				.eventMarketId(1L).eventWinnerId(1L).amount(BigDecimal.TEN).status(BetStatus.PENDING).build();
+		BetDto betDto = BetDto.builder()
+				.id(1L)
+				.userId(1L)
+				.eventId(1L)
+				.eventMarketId(1L)
+				.eventWinnerId(1L)
+				.amount(BigDecimal.TEN)
+				.status(BetStatus.PENDING)
+				.build();
+		BetResponse betResponse = BetResponse.builder()
+				.id(1L)
+				.userId(1L)
+				.eventId(1L)
+				.eventMarketId(1L)
+				.eventWinnerId(1L)
+				.amount(BigDecimal.TEN)
+				.status(BetStatus.PENDING)
+				.build();
 		when(betService.getAllBets()).thenReturn(List.of(betDto));
 		when(betMapper.toResponse(betDto)).thenReturn(betResponse);
 

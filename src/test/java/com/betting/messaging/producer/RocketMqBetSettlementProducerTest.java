@@ -54,7 +54,7 @@ class RocketMqBetSettlementProducerTest {
 
 		assertThatThrownBy(() -> producer.sendBetSettlement(message))
 				.isInstanceOf(BrokerException.class)
-				.hasMessageContaining("Failed to send bet settlement message")
+				.hasMessage("Failed to send bet settlement message")
 				.hasCauseInstanceOf(RuntimeException.class);
 	}
 }
