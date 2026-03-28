@@ -12,7 +12,6 @@ spring:
     password:
   
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     defer-datasource-initialization: true
     hibernate:
       ddl-auto: create-drop
@@ -47,6 +46,8 @@ rocketmq:
   producer:
     group: betting-producer-group
     send-message-timeout: 3000
+    retry-times-when-send-failed: 3
+    retry-times-when-send-async-failed: 3
 
 logging:
   level:

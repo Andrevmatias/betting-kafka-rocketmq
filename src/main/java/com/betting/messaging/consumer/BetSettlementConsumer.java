@@ -14,8 +14,7 @@ import com.betting.service.BetSettlementService;
 @Component
 @RocketMQMessageListener(
 		topic = MessageTopics.BET_SETTLEMENTS,
-		consumerGroup = "bet-settlement-consumer-group",
-		consumeThreadMax = 10
+		consumerGroup = "bet-settlement-consumer-group"
 )
 @RequiredArgsConstructor
 @Slf4j
