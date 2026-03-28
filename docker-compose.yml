@@ -49,24 +49,24 @@ services:
     command: sh mqbroker autoCreateTopicEnable=true
     networks:
       - betting-network
-
-#  app:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    container_name: betting-app
-#    depends_on:
-#      - kafka
-#      - rocketmq-broker
-#    ports:
-#      - "8080:8080"
-#    environment:
-#      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-#      ROCKETMQ_NAME_SERVER: namesrv:9876
-#      SPRING_DATASOURCE_URL: jdbc:h2:mem:bettingdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-#    networks:
-#      - betting-network
-#    restart: on-failure
+  
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: betting-app
+    depends_on:
+      - kafka
+      - rocketmq-broker
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      ROCKETMQ_NAME_SERVER: namesrv:9876
+      SPRING_DATASOURCE_URL: jdbc:h2:mem:bettingdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    networks:
+      - betting-network
+    restart: on-failure
 
 networks:
   betting-network:
