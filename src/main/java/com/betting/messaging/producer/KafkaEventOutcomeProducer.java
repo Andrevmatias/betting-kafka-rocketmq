@@ -30,6 +30,7 @@ public class KafkaEventOutcomeProducer implements EventOutcomeProducer {
 					result.getRecordMetadata().offset());
 		} catch (InterruptedException ex) {
 			Thread.currentThread().interrupt();
+			throw new BrokerException("Interrupted while sending bet settlement message", ex);
 		} catch (Exception ex) {
 			throw new BrokerException("Failed to send event outcome for eventId=" + message.getEventId(), ex);
 		}
