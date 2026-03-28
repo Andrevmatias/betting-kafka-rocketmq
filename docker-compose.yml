@@ -62,7 +62,7 @@ services:
       - "8080:8080"
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      ROCKETMQ_NAME_SERVER: namesrv:9876
+      ROCKETMQ_NAME_SERVER: rmqnamesrv:9876
       SPRING_DATASOURCE_URL: jdbc:h2:mem:bettingdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     networks:
       - betting-network
