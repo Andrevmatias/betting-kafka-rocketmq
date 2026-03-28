@@ -13,11 +13,16 @@ import com.betting.data.model.Bet;
 import com.betting.data.model.BetStatus;
 import com.betting.data.repository.BetRepository;
 
+import jakarta.persistence.EntityManager;
+
 @DataJpaTest
 class BetSettlementServiceIntegrationTest {
 
 	@Autowired
 	private BetRepository betRepository;
+
+	@Autowired
+	private EntityManager entityManager;
 
 	private BetSettlementService betSettlementService;
 
@@ -32,6 +37,8 @@ class BetSettlementServiceIntegrationTest {
 
 		betSettlementService.settleBet(bet.getId(), true);
 
+		entityManager.refresh(bet);
+
 		assertThat(betRepository.findById(bet.getId()).orElseThrow().getStatus()).isEqualTo(BetStatus.WON);
 	}
 
@@ -41,14 +48,7 @@ class BetSettlementServiceIntegrationTest {
 
 		betSettlementService.settleBet(bet.getId(), false);
 
-		assertThat(betRepository.findById(bet.getId()).orElseThrow().getStatus()).isEqualTo(BetStatus.LOST);
-	}
-
-	@Test
-	void settleBet_wonIsNull_statusBecomesLost() {
-		Bet bet = betRepository.save(pendingBet());
-
-		betSettlementService.settleBet(bet.getId(), null);
+		entityManager.refresh(bet);
 
 		assertThat(betRepository.findById(bet.getId()).orElseThrow().getStatus()).isEqualTo(BetStatus.LOST);
 	}

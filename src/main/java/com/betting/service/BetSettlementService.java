@@ -17,8 +17,8 @@ public class BetSettlementService {
 	private final BetRepository betRepository;
 
 	@Transactional
-	public void settleBet(Long betId, Boolean isWon) {
-		BetStatus newStatus = Boolean.TRUE.equals(isWon) ? BetStatus.WON : BetStatus.LOST;
+	public void settleBet(Long betId, boolean isWon) {
+		BetStatus newStatus = isWon ? BetStatus.WON : BetStatus.LOST;
 
 		int updated = betRepository.settleIfPending(betId, newStatus);
 
